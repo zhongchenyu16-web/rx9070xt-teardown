@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RX 9070 XT 白色暗夜犬 · 3D 拆解可视化</title>
+<meta name="description" content="撼讯 RX 9070 XT 白色暗夜犬 · 六层结构 3D 拆解爆炸图，可拖拽旋转、分件高亮、透视穿视。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="RX 9070 XT 白色暗夜犬 · 3D 拆解可视化">
+<meta property="og:description" content="六层结构 / 147 零件 / 14742 三角面。拖拽旋转，点击结构层单独查看。">
+<meta name="theme-color" content="#04070b">
+<style>
+  :root{
+    --cy:#4fd8ff; --cy2:#1f7fb8; --line:rgba(79,216,255,.22);
+    --panel:rgba(7,13,20,.78); --txt:#cfe3f2; --dim:#6d8ba3; --hi:#eaf6ff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#04070b;color:var(--txt);
+    font-family:"Microsoft YaHei","Segoe UI",system-ui,sans-serif;overflow:hidden;
+    -webkit-font-smoothing:antialiased}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block}
+  .vignette{position:fixed;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 50% 46%,transparent 35%,rgba(0,0,0,.55) 100%)}
+  .scan{position:fixed;inset:0;pointer-events:none;opacity:.35;
+    background:repeating-linear-gradient(0deg,rgba(120,200,255,.035) 0 1px,transparent 1px 3px)}
+
+  header{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;
+    justify-content:space-between;padding:0 24px;pointer-events:none}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:26px;height:26px;border:1.5px solid var(--cy);border-radius:6px;
+    display:grid;place-items:center;color:var(--cy);font-size:13px;font-weight:700;
+    box-shadow:0 0 14px rgba(79,216,255,.45) inset,0 0 10px rgba(79,216,255,.25)}
+  .ttl{font-size:15px;letter-spacing:.06em;color:var(--hi);font-weight:600}
+  .sub{font-size:11px;color:var(--dim);letter-spacing:.14em;margin-top:2px}
+  .tools{display:flex;gap:8px;pointer-events:auto}
+  .btn{font:inherit;font-size:12px;color:var(--txt);background:rgba(10,18,28,.8);
+    border:1px solid var(--line);border-radius:7px;padding:7px 13px;cursor:pointer;
+    letter-spacing:.05em;transition:.18s;white-space:nowrap}
+  .btn:hover{border-color:rgba(79,216,255,.55);color:#fff;box-shadow:0 0 14px rgba(79,216,255,.18)}
+  .btn.on{background:rgba(79,216,255,.14);border-color:rgba(79,216,255,.65);color:#dff6ff;
+    box-shadow:0 0 16px rgba(79,216,255,.28)}
+
+  aside{position:fixed;top:78px;bottom:106px;width:270px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(9px);
+    display:flex;flex-direction:column;overflow:hidden}
+  #left{left:22px}
+  #right{right:22px;width:296px}
+  .ph{padding:12px 15px;border-bottom:1px solid rgba(79,216,255,.14);
+    font-size:11px;letter-spacing:.18em;color:var(--cy);display:flex;justify-content:space-between}
+  .ph span{color:var(--dim);letter-spacing:.05em}
+  .rows{padding:6px;overflow:auto;flex:1}
+  .row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;
+    cursor:pointer;transition:.15s;border:1px solid transparent}
+  .row:hover{background:rgba(79,216,255,.06)}
+  .row.sel{background:rgba(79,216,255,.12);border-color:rgba(79,216,255,.4)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--cy);flex:0 0 auto;
+    box-shadow:0 0 10px rgba(79,216,255,.9)}
+  .rname{font-size:12.5px;color:var(--txt);flex:1}
+  .rmeta{font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .empty{padding:16px;font-size:11.5px;color:var(--dim);line-height:1.7}
+
+  .spec{padding:14px 16px;overflow:auto;flex:1}
+  .pname{font-size:16px;color:var(--hi);font-weight:600;letter-spacing:.03em}
+  .pen{font-size:10.5px;color:var(--dim);letter-spacing:.16em;margin-top:4px}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;
+    border-bottom:1px dashed rgba(79,216,255,.12);font-size:12px}
+  .kv b{font-weight:400;color:var(--dim)}
+  .kv i{font-style:normal;color:var(--hi);font-variant-numeric:tabular-nums}
+  .note{margin-top:14px;font-size:10.5px;color:#54718a;line-height:1.75}
+  .desc{font-size:12px;line-height:1.85;color:#a9c4d8;margin-top:10px}
+
+  footer{position:fixed;left:22px;right:22px;bottom:20px;height:70px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(9px);
+    display:flex;align-items:center;gap:10px;padding:0 16px;overflow-x:auto}
+  .chip{font-size:12px;color:var(--txt);border:1px solid var(--line);border-radius:20px;
+    padding:7px 15px;cursor:pointer;white-space:nowrap;transition:.15s;background:rgba(8,16,26,.6)}
+  .chip:hover{border-color:rgba(79,216,255,.55);color:#fff}
+  .chip.on{background:rgba(79,216,255,.16);border-color:rgba(79,216,255,.7);color:#dff6ff}
+
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;font-size:11px;
+    color:#4d6c85;letter-spacing:.08em;pointer-events:none}
+  #load{position:fixed;inset:0;display:grid;place-items:center;background:#04070b;z-index:9;
+    transition:opacity .35s;font-size:12px;letter-spacing:.2em;color:var(--cy)}
+  #load.gone{opacity:0;pointer-events:none}
+  .corner{position:fixed;width:26px;height:26px;border:1px solid rgba(79,216,255,.35);pointer-events:none}
+  .c1{top:70px;left:22px;border-right:0;border-bottom:0}
+  .c2{top:70px;right:22px;border-left:0;border-bottom:0}
+  .c3{bottom:100px;left:22px;border-right:0;border-top:0}
+  .c4{bottom:100px;right:22px;border-left:0;border-top:0}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="vignette"></div>
+<div class="scan"></div>
+<div class="corner c1"></div><div class="corner c2"></div>
+<div class="corner c3"></div><div class="corner c4"></div>
+
+<header>
+  <div class="brand">
+    <div class="logo">H</div>
+    <div>
+      <div class="ttl">RX 9070 XT · 白色暗夜犬</div>
+      <div class="sub">POWERCOLOR HELLHOUND WHITE / 3D TEARDOWN VIEWER</div>
+    </div>
+  </div>
+  <div class="tools">
+    <button class="btn on" id="bExplode">分解视图</button>
+    <button class="btn" id="bXray">透视</button>
+    <button class="btn on" id="bGrid">网格</button>
+    <button class="btn on" id="bSpin">自动旋转</button>
+    <button class="btn" id="bReset">重置视角</button>
+  </div>
+</header>
+
+<aside id="left">
+  <div class="ph">结构层 <span id="lcount">—</span></div>
+  <div class="rows" id="layerList"></div>
+</aside>
+
+<aside id="right">
+  <div class="ph">规格 <span>SPEC</span></div>
+  <div class="spec" id="specPanel"></div>
+</aside>
+
+<footer id="chips"></footer>
+<div id="hint">拖拽旋转 · 滚轮缩放 · 点击左侧结构层查看</div>
+<div id="load">LOADING GEOMETRY…</div>
+
+<script src="three.min.js"></script>
+<script src="data.js"></script>
+<script>
+/* ------------------------------------------------------------------ *
+ *  数据
+ * ------------------------------------------------------------------ */
+const LAYER_INFO = {
+  backplate: {zh:"全金属背板", en:"METAL BACKPLATE",
+    desc:"铝合金背板，2.5 mm 冲压件，6 点固定。承担整卡刚性、PCB 保护，并把背面余热导向环境。"},
+  pcb: {zh:"PCB 与供电模组", en:"PCB · VRM · GDDR6",
+    desc:"12 层 PCB。核心基板 + 8 颗 GDDR6 + 两排供电电感 + 固态电容 + 双 8-pin + PCIe 金手指。"},
+  cooler: {zh:"铜底 + 热管", en:"COPPER BASE · HEAT PIPES",
+    desc:"镀镍铜底 + 均热板 + 5 根 Ø6.8 复合热管。把核心热流摊平后送进整条鳍片阵列。"},
+  fins: {zh:"铝制鳍片阵列", en:"ALUMINIUM FIN STACK",
+    desc:"12 片 1.7 mm 铝鳍片，节距 8.4 mm。此节距为可读性放大，实卡密度约为其 2–3 倍。"},
+  fans: {zh:"三风扇模组", en:"TRIPLE 92MM FAN",
+    desc:"3 把 Ø92 mm 风扇，每把 11 叶。外圈框 + 轮毂 + 蓝色光圈，气流垂直压入鳍片。"},
+  shroud: {zh:"白色装甲外壳", en:"WHITE SHROUD",
+    desc:"白色注塑装甲：3 块带圆孔面板无缝拼接 + 裙边 + 前缘冷光灯条 + 徽标。"}
+};
+const SPEC = [
+  ["显示核心","Radeon RX 9070 XT"],
+  ["显存","16 GB GDDR6"],
+  ["位宽","256-bit"],
+  ["加速频率","约 2970 MHz"],
+  ["整卡功耗","约 304 W"],
+  ["供电接口","2 × 8-pin"],
+  ["卡身尺寸","320 × 128 × 63 mm"],
+  ["散热","3 × Ø92 mm + 5 热管"],
+  ["显示输出","3 × DP 2.1 + 1 × HDMI 2.1"]
+];
+
+/* ------------------------------------------------------------------ *
+ *  状态
+ * ------------------------------------------------------------------ */
+const S = {
+  explode: 1, explodeT: 1, xray:false, spin:true, grid:true,
+  sel:null, url:new URLSearchParams(location.search)
+};
+const EX = 0.20;          // 爆炸位移系数
+
+/* ------------------------------------------------------------------ *
+ *  场景
+ * ------------------------------------------------------------------ */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.18;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x04070b, 0.055);
+const cam = new THREE.PerspectiveCamera(32, 1, 0.05, 100);
+
+/* 程序化环境贴图：暗场 + 顶部两条棚灯 + 一条青色侧光，给金属材质一个可信的反射 */
+function makeEnv(){
+  const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 512;
+  const g = cv.getContext('2d');
+  const bg = g.createLinearGradient(0,0,0,512);
+  bg.addColorStop(0,'#2a3a49'); bg.addColorStop(.42,'#0b131b');
+  bg.addColorStop(.58,'#05080c'); bg.addColorStop(1,'#000000');
+  g.fillStyle = bg; g.fillRect(0,0,1024,512);
+  const band = g.createLinearGradient(0,40,0,190);
+  band.addColorStop(0,'rgba(255,255,255,.95)'); band.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = band; g.fillRect(120,40,300,150);
+  g.fillStyle = band; g.fillRect(640,60,240,130);
+  const cy = g.createLinearGradient(0,0,1024,0);
+  cy.addColorStop(0,'rgba(30,120,220,0)'); cy.addColorStop(.09,'rgba(70,180,255,.55)');
+  cy.addColorStop(.5,'rgba(20,70,140,.12)'); cy.addColorStop(.92,'rgba(30,120,220,0)');
+  g.fillStyle = cy; g.fillRect(0,190,1024,80);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.encoding = THREE.sRGBEncoding;
+  return tex;
+}
+scene.environment = makeEnv();
+
+scene.add(new THREE.HemisphereLight(0x9fd4ff, 0x05070a, 0.45));
+const key = new THREE.DirectionalLight(0xffffff, 2.1); key.position.set(2.6,3.4,2.4); scene.add(key);
+const fill = new THREE.DirectionalLight(0x6fb4ff, 0.85); fill.position.set(-3.2,1.4,-2.2); scene.add(fill);
+const rim = new THREE.DirectionalLight(0x9ad8ff, 1.5); rim.position.set(-0.6,-1.2,-3.2); scene.add(rim);
+const glow = new THREE.PointLight(0x4fd8ff, 2.2, 7); glow.position.set(0,-0.55,0.8); scene.add(glow);
+
+/* ---------------- 全息圆台 ---------------- */
+const platform = new THREE.Group(); scene.add(platform);
+const PY = -1.30;
+
+function ringGeo(r0, r1, color, op){
+  const m = new THREE.Mesh(
+    new THREE.RingGeometry(r0, r1, 160),
+    new THREE.MeshBasicMaterial({color, transparent:true, opacity:op, side:THREE.DoubleSide,
+      blending:THREE.AdditiveBlending, depthWrite:false}));
+  m.rotation.x = -Math.PI/2; m.position.y = PY; return m;
+}
+platform.add(ringGeo(2.30,2.36,0x4fd8ff,.55));
+platform.add(ringGeo(1.95,1.965,0x2f9fd0,.35));
+platform.add(ringGeo(2.85,2.862,0x2f9fd0,.18));
+const spinRing = new THREE.Group(); platform.add(spinRing);
+for(let i=0;i<48;i++){
+  const a = i/48*Math.PI*2;
+  const g = new THREE.PlaneGeometry(0.035,0.008);
+  const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({color:0x6fe0ff, transparent:true,
+    opacity:i%4===0?.7:.22, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false}));
+  m.position.set(Math.cos(a)*2.42, PY+0.002, Math.sin(a)*2.42);
+  m.rotation.x = -Math.PI/2; m.rotation.z = -a; spinRing.add(m);
+}
+/* 台面辉光 */
+(function(){
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+  const g = cv.getContext('2d');
+  const rg = g.createRadialGradient(128,128,10,128,128,128);
+  rg.addColorStop(0,'rgba(90,200,255,.55)'); rg.addColorStop(.45,'rgba(40,120,200,.18)');
+  rg.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle = rg; g.fillRect(0,0,256,256);
+  const tex = new THREE.CanvasTexture(cv);
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(5,5),
+    new THREE.MeshBasicMaterial({map:tex, transparent:true, depthWrite:false,
+      blending:THREE.AdditiveBlending}));
+  m.rotation.x = -Math.PI/2; m.position.y = PY+0.001; platform.add(m);
+})();
+/* 网格 */
+const grid = new THREE.GridHelper(13, 52, 0x1d4a6b, 0x102634);
+grid.position.y = PY-0.002;
+grid.material.transparent = true; grid.material.opacity = 0.55;
+platform.add(grid);
+
+/* ---------------- 模型 ---------------- */
+const root = new THREE.Group();
+root.rotation.y = -0.02;
+scene.add(root);
+let layerNodes = [];
+
+function parseGLB(buf){
+  const dv = new DataView(buf);
+  if (dv.getUint32(0,true) !== 0x46546C67) throw new Error('not glb');
+  const total = dv.getUint32(8,true);
+  let off = 12, json = null, bin = null;
+  while(off < total){
+    const clen = dv.getUint32(off,true), ctype = dv.getUint32(off+4,true);
+    const body = buf.slice(off+8, off+8+clen);
+    if(ctype === 0x4E4F534A) json = JSON.parse(new TextDecoder().decode(body));
+    else if(ctype === 0x004E4942) bin = body;
+    off += 8 + clen;
+  }
+  return {json, bin};
+}
+function accArray(json, bin, idx){
+  const a = json.accessors[idx], v = json.bufferViews[a.bufferView];
+  const compSize = {5126:4, 5125:4, 5123:2}[a.componentType];
+  const nComp = {VEC3:3, SCALAR:1, VEC2:2}[a.type];
+  const start = (v.byteOffset||0) + (a.byteOffset||0);
+  const out = new Float32Array(a.count * nComp);
+  if(a.componentType === 5126){
+    return new Float32Array(bin, start, a.count*nComp);
+  } else if(a.componentType === 5125){
+    return new Uint32Array(bin, start, a.count);
+  } else {
+    return new Uint16Array(bin, start, a.count);
+  }
+}
+
+function buildModel(json, bin){
+  const mats = json.materials.map(m=>{
+    const p = m.pbrMetallicRoughness || {};
+    const c = p.baseColorFactor || [1,1,1,1];
+    if(m.name === 'led'){
+      const lm = new THREE.MeshBasicMaterial({color: new THREE.Color(0.16,0.72,1.0)});
+      lm.toneMapped = false;
+      lm.userData.emi = [0,0,0];
+      lm.userData.isLed = true;
+      return lm;
+    }
+    const mat = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(c[0],c[1],c[2]),
+      metalness: p.metallicFactor !== undefined ? p.metallicFactor : 0.5,
+      roughness: p.roughnessFactor !== undefined ? p.roughnessFactor : 0.5,
+      envMapIntensity: 1.15
+    });
+    if(m.emissiveFactor){
+      mat.emissive = new THREE.Color(m.emissiveFactor[0], m.emissiveFactor[1], m.emissiveFactor[2]);
+      mat.emissiveIntensity = 2.4;
+    }
+    mat.userData.emi = m.emissiveFactor ? m.emissiveFactor.slice() : [0,0,0];
+    return mat;
+  });
+
+  json.nodes.forEach((node, li)=>{
+    const g = new THREE.Group();
+    g.name = node.name;
+    const mesh = json.meshes[node.mesh];
+    mesh.primitives.forEach(pr=>{
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(accArray(json,bin,pr.attributes.POSITION),3));
+      if(pr.attributes.NORMAL !== undefined)
+        geo.setAttribute('normal', new THREE.BufferAttribute(accArray(json,bin,pr.attributes.NORMAL),3));
+      const ia = json.accessors[pr.indices];
+      const buf = accArray(json,bin,pr.indices);
+      geo.setIndex(new THREE.BufferAttribute(ia.componentType===5125?buf:buf, 1));
+      geo.computeBoundingSphere();
+      const m = mats[pr.material].clone();
+      m.userData.layer = li;
+      const mesh3 = new THREE.Mesh(geo, m);
+      mesh3.userData.layer = li;
+      g.add(mesh3);
+    });
+    g.userData.layer = li;
+    root.add(g);
+    layerNodes.push(g);
+  });
+}
+
+function applyExplode(t){
+  layerNodes.forEach((g,i)=>{ g.position.y = t * EX * (i - (layerNodes.length-1)/2); });
+}
+
+/* ---------------- 高亮 / 透视 ---------------- */
+function refreshLook(){
+  const sel = S.sel;
+  layerNodes.forEach((g,i)=>{
+    g.traverse(o=>{
+      if(!o.material) return;
+      const m = o.material;
+      const on = (sel === null) || (i === sel);
+      m.transparent = S.xray || !on;
+      m.opacity = S.xray ? 0.28 : (on ? 1 : 0.16);
+      m.depthWrite = !(S.xray || !on);
+      const emi = (m.userData && m.userData.emi) ? m.userData.emi : [0,0,0];
+      if(m.emissive){
+        if(sel !== null && i === sel){
+          m.emissive.setRGB(0.02, 0.10, 0.16);
+          m.emissiveIntensity = 0.55;
+        }else{
+          m.emissive.setRGB(emi[0], emi[1], emi[2]);
+          m.emissiveIntensity = (emi[0]+emi[1]+emi[2]) > 0 ? 3.4 : 0;
+        }
+      }
+      m.needsUpdate = true;
+    });
+  });
+  document.querySelectorAll('.row').forEach((r,i)=>r.classList.toggle('sel', i===S.sel));
+  document.querySelectorAll('.chip').forEach((c,i)=>c.classList.toggle('on', (i-1)===S.sel));
+}
+function syncChips(){}
+
+/* ---------------- UI ---------------- */
+let META = [];
+function buildUI(){
+  const list = document.getElementById('layerList');
+  list.innerHTML = '';
+  META.forEach((m,i)=>{
+    const info = LAYER_INFO[m.key] || {zh:m.zh, en:m.key};
+    const d = document.createElement('div');
+    d.className = 'row';
+    d.innerHTML = `<span class="dot"></span><span class="rname">${info.zh}</span>
+                   <span class="rmeta">${m.tris.toLocaleString()} tri</span>`;
+    d.onclick = ()=>select(i);
+    list.appendChild(d);
+  });
+  document.getElementById('lcount').textContent = META.length + ' 层 / ' +
+    META.reduce((a,b)=>a+b.parts,0) + ' 零件';
+
+  const chips = document.getElementById('chips');
+  chips.innerHTML = '';
+  const all = document.createElement('div');
+  all.className = 'chip on'; all.textContent = '全部';
+  all.onclick = ()=>select(null);
+  chips.appendChild(all);
+  META.forEach((m,i)=>{
+    const c = document.createElement('div');
+    c.className = 'chip'; c.textContent = (LAYER_INFO[m.key]||{zh:m.zh}).zh;
+    c.onclick = ()=>select(i);
+    chips.appendChild(c);
+  });
+}
+
+function specPanel(){
+  const p = document.getElementById('specPanel');
+  if(S.sel === null){
+    p.innerHTML = `<div class="pname">RX 9070 XT</div>
+      <div class="pen">HELLHOUND WHITE EDITION</div>
+      <div style="margin-top:12px">
+      ${SPEC.map(([k,v])=>`<div class="kv"><b>${k}</b><i>${v}</i></div>`).join('')}
+      </div>
+      <div class="note">规格按公开资料口径填写；几何为参数化重建，非官方工程图。<br>
+      拖拽旋转，滚轮缩放，点击左侧结构层可单独查看并高亮。</div>`;
+  }else{
+    const m = META[S.sel], info = LAYER_INFO[m.key] || {zh:m.zh, en:m.key, desc:''};
+    p.innerHTML = `<div class="pname">${info.zh}</div>
+      <div class="pen">${info.en}</div>
+      <div style="margin-top:12px">
+        <div class="kv"><b>三角面</b><i>${m.tris.toLocaleString()}</i></div>
+        <div class="kv"><b>零件数</b><i>${m.parts}</i></div>
+        <div class="kv"><b>材质</b><i>${m.mat}</i></div>
+        <div class="kv"><b>层序</b><i>${S.sel+1} / ${META.length}</i></div>
+      </div>
+      <div class="desc">${info.desc||''}</div>
+      <div class="note">点击“全部”或再次点击该层可取消选择。</div>`;
+  }
+}
+
+function select(i){
+  S.sel = (S.sel === i) ? null : i;
+  refreshLook(); specPanel();
+}
+
+document.getElementById('bExplode').onclick = e=>{
+  S.explode = S.explode ? 0 : 1;
+  e.currentTarget.classList.toggle('on', !!S.explode);
+};
+document.getElementById('bXray').onclick = e=>{
+  S.xray = !S.xray; e.currentTarget.classList.toggle('on', S.xray); refreshLook();
+};
+document.getElementById('bGrid').onclick = e=>{
+  S.grid = !S.grid; e.currentTarget.classList.toggle('on', S.grid);
+  grid.visible = S.grid; spinRing.visible = S.grid;
+};
+document.getElementById('bSpin').onclick = e=>{
+  S.spin = !S.spin; e.currentTarget.classList.toggle('on', S.spin);
+};
+document.getElementById('bReset').onclick = ()=>{ S.theta=-0.66; S.phi=1.19; S.rad=7.4; };
+
+/* ---------------- 相机 / 交互 ---------------- */
+const TARGET = new THREE.Vector3(0, 0.02, 0);
+S.theta = -0.66; S.phi = 1.19; S.rad = 7.4;
+let drag = null;
+
+canvas.addEventListener('pointerdown', e=>{ drag = {x:e.clientX, y:e.clientY}; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointerup', e=>{ drag = null; });
+canvas.addEventListener('pointermove', e=>{
+  if(!drag) return;
+  S.theta -= (e.clientX-drag.x)*0.0055;
+  S.phi   -= (e.clientY-drag.y)*0.0045;
+  S.phi = Math.max(0.30, Math.min(1.50, S.phi));
+  drag = {x:e.clientX, y:e.clientY};
+});
+canvas.addEventListener('wheel', e=>{
+  e.preventDefault();
+  S.rad *= (1 + Math.sign(e.deltaY)*0.08);
+  S.rad = Math.max(5.0, Math.min(15.0, S.rad));
+}, {passive:false});
+
+function resize(){
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false);
+  cam.aspect = w/h; cam.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+/* ---------------- 主循环 ---------------- */
+let last = performance.now();
+function tick(now){
+  const dt = Math.min((now-last)/1000, 0.05); last = now;
+
+  if(S.spin && !drag) S.theta += dt*0.16;
+  S.explodeT += (S.explode - S.explodeT) * Math.min(1, dt*5.5);
+  applyExplode(S.explodeT);
+
+  const sp = Math.sin(S.phi), cp = Math.cos(S.phi);
+  cam.position.set(
+    TARGET.x + S.rad*sp*Math.sin(S.theta),
+    TARGET.y + S.rad*cp,
+    TARGET.z + S.rad*sp*Math.cos(S.theta));
+  cam.lookAt(TARGET);
+
+  spinRing.rotation.y += dt*0.25;
+  glow.position.set(Math.sin(now*0.0004)*0.6, -0.55, Math.cos(now*0.0004)*0.6);
+
+  renderer.render(scene, cam);
+  requestAnimationFrame(tick);
+}
+
+/* ---------------- 启动 ---------------- */
+resize();
+function b64ToBuf(b64){
+  const s = atob(b64), a = new Uint8Array(s.length);
+  for(let i=0;i<s.length;i++) a[i] = s.charCodeAt(i);
+  return a.buffer;
+}
+const metaP = (window.GPU_LAYERS ? Promise.resolve(window.GPU_LAYERS)
+                                  : fetch('layers.json').then(r=>r.json()));
+metaP.then(meta=>{
+  META = meta; buildUI();
+  return window.GPU_GLB ? b64ToBuf(window.GPU_GLB) : fetch('gpu.glb').then(r=>r.arrayBuffer());
+}).then(buf=>{
+  const {json, bin} = parseGLB(buf);
+  buildModel(json, bin);
+  if(S.url.has('sel')){ const q=parseInt(S.url.get('sel')); S.sel = isNaN(q)?null:q; }
+  refreshLook(); specPanel();
+  const ld=document.getElementById('load'); ld.classList.add('gone'); setTimeout(()=>ld.style.display='none', 420);
+  requestAnimationFrame(tick);
+}).catch(err=>{
+  document.getElementById('load').textContent = '加载失败：' + err.message;
+  console.error(err);
+});
+</script>
+</body>
+</html>
