@@ -447,11 +447,21 @@ document.getElementById('bGrid').onclick = e=>{
 document.getElementById('bSpin').onclick = e=>{
   S.spin = !S.spin; e.currentTarget.classList.toggle('on', S.spin);
 };
-document.getElementById('bReset').onclick = ()=>{ S.theta=-0.66; S.phi=1.19; S.rad=7.4; };
+document.getElementById('bReset').onclick = ()=>{ S.theta=-0.66; S.phi=1.19; userZoomed=false; fitCam(); };
 
 /* ---------------- 相机 / 交互 ---------------- */
 const TARGET = new THREE.Vector3(0, 0.02, 0);
-S.theta = -0.66; S.phi = 1.19; S.rad = 7.4;
+S.theta = -0.66; S.phi = 1.19;
+// 按画布长宽比自适应机位：窄窗口自动拉远，避免模型被裁切
+let userZoomed = false;
+function fitCam(){
+  // 画布铺满窗口，但左右面板各占约 240px，所以按"可用中间带"计算
+  const uw = Math.max(360, innerWidth - 500);
+  const uh = Math.max(320, innerHeight - 170);
+  const a = Math.max(uw / uh, 0.40);
+  S.rad = Math.min(18, Math.max(5.5, Math.max(4.8, 6.83 / a) * 1.5));
+}
+fitCam();
 let drag = null;
 
 canvas.addEventListener('pointerdown', e=>{ drag = {x:e.clientX, y:e.clientY}; canvas.setPointerCapture(e.pointerId); });
@@ -466,13 +476,15 @@ canvas.addEventListener('pointermove', e=>{
 canvas.addEventListener('wheel', e=>{
   e.preventDefault();
   S.rad *= (1 + Math.sign(e.deltaY)*0.08);
-  S.rad = Math.max(5.0, Math.min(15.0, S.rad));
+  S.rad = Math.max(4.0, Math.min(16.0, S.rad));
+  userZoomed = true;
 }, {passive:false});
 
 function resize(){
   const w = innerWidth, h = innerHeight;
   renderer.setSize(w, h, false);
   cam.aspect = w/h; cam.updateProjectionMatrix();
+  if(!userZoomed) fitCam();
 }
 addEventListener('resize', resize);
 
